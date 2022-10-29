@@ -1,85 +1,49 @@
-import React from "react";
-import {
-  Text,
-  Link,
-  HStack,
-  Center,
-  Heading,
-  Switch,
-  useColorMode,
-  NativeBaseProvider,
-  extendTheme,
-  VStack,
-  Box,
-} from "native-base";
-import NativeBaseIcon from "./components/NativeBaseIcon";
-import { Platform } from "react-native";
+import React, { useState, useEffect } from "react";
+import { NativeBaseProvider, View } from "native-base";
+import * as SplashScreen from "expo-splash-screen";
+import HomeScreen from "./screens/HomeScreen";
+import Menu from "./components/Menu";
+import AboutUsScreen from "./screens/AboutUsScreen";
+import HistoryScreen from "./screens/HistoryScreen";
 
-// Define the config
-const config = {
-  useSystemColorMode: false,
-  initialColorMode: "dark",
-};
-
-// extend the theme
-export const theme = extendTheme({ config });
+// Prevent native splash screen from autohiding before App component declaration
+SplashScreen.preventAutoHideAsync()
+  .then((result) =>
+    console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`)
+  )
+  .catch(console.warn); // it's good to explicitly catch and inspect any error
 
 export default function App() {
+  useEffect(() => {
+    // Hides native splash screen after 2s
+    setTimeout(async () => {
+      await SplashScreen.hideAsync();
+    }, 2000);
+  }, []);
+
+  const [screen, setScreen] = useState(1);
+
   return (
     <NativeBaseProvider>
-      <Center
-        _dark={{ bg: "blueGray.900" }}
-        _light={{ bg: "blueGray.50" }}
-        px={4}
-        flex={1}
-      >
-        <VStack space={5} alignItems="center">
-          <NativeBaseIcon />
-          <Heading size="lg">Welcome to NativeBase</Heading>
-          <HStack space={2} alignItems="center">
-            <Text>Edit</Text>
-            <Box
-              _web={{
-                _text: {
-                  fontFamily: "monospace",
-                  fontSize: "sm",
-                },
-              }}
-              px={2}
-              py={1}
-              _dark={{ bg: "blueGray.800" }}
-              _light={{ bg: "blueGray.200" }}
-            >
-              App.js
-            </Box>
-            <Text>and save to reload.</Text>
-          </HStack>
-          <Link href="https://docs.nativebase.io" isExternal>
-            <Text color="primary.500" underline fontSize={"xl"}>
-              Learn NativeBase
-            </Text>
-          </Link>
-          <ToggleDarkMode />
-        </VStack>
-      </Center>
-    </NativeBaseProvider>
-  );
-}
-
-// Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light"}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
+      {screen == 1 ? (
+        <HomeScreen />
+      ) : screen == 2 ? (
+        <HistoryScreen />
+      ) : (
+        <AboutUsScreen />
+      )}
+      <Menu
+        onHomeScreen={() => {
+          setScreen(1);
+        }}
+        onHistoryScreen={() => {
+          setScreen(2);
+        }}
+        onAboutScreen={() => {
+          setScreen(3);
+        }}
+        screen={screen}
       />
-      <Text>Light</Text>
-    </HStack>
+    </NativeBaseProvider>
   );
 }
